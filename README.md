@@ -6,11 +6,14 @@ Create a topic and get help at WWC!
 World Wide Conncetion is an application that helps international students arriving in Brandenburg that face numerous practical obstacles navigating daily life.
 
 Features
-🔒 Logins Required so we can keep the community sage.
 
-💸 Free for Everyone World Wide Connect is completely free to use.
+🔒 Logins Required so we can keep the community safe.
 
-📱 Perfect for Small Screens. Designed for mobile devices screens for your everyday use.
+💸 Free for Everyone
+World Wide Connect is completely free to use.
+
+📱 Perfect for Small Screens.
+Designed for mobile devices screens for your everyday use.
 
 2️⃣ World Wide Connect users can chat in real-time with other uses to solve issues together.
 
