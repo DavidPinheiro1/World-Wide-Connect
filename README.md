@@ -9,7 +9,7 @@ Features
 
 🔒 Logins Required so we can keep the community safe.
 
-💸 Free for Everyone
+💸 Free for Everyone.
 World Wide Connect is completely free to use.
 
 📱 Perfect for Small Screens.
@@ -17,13 +17,13 @@ Designed for mobile devices screens for your everyday use.
 
 2️⃣ World Wide Connect users can chat in real-time with other uses to solve issues together.
 
-📷 World Wide Connect has a QR Scanner that helps the users scan our QR Codes around the city and get instant help.
+📷 World Wide Connect has a QR Code Scanner that helps the users scan our QR Codes around the city and get instant help.
 
 🎯 Get Started
 Create an account.
 Setup your profile.
 Heav over to our Scan page and Scan one of our QR Codes near by.
-If you do not have a QR Code scanner near by, search for the desired topic or create your own.
+If you do not have a QR Code near by, search for the desired topic or create your own.
 Quick, Easy, and Free!
 
 📳 Turn your notifications on
