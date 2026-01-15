@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "885549030308",
+    "project_id": "world-wide-connect-3b5f2",
+    "storage_bucket": "world-wide-connect-3b5f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885549030308:android:ba5bc845bfc8956ce97f31",
+        "android_client_info": {
+          "package_name": "com.example.wwc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885549030308-4bgfrai3hia5ropidsns1v0aq1vn3ne1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wwc",
+            "certificate_hash": "d08bbd1e5ee887556dd9fffaf435b0288665624c"
+          }
+        },
+        {
+          "client_id": "885549030308-ehl0vgff6egd0padg5ulu3mqm5rb69uc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wwc",
+            "certificate_hash": "be22344033b3ef76ee6783a6cecaf872f985b744"
+          }
+        },
+        {
+          "client_id": "885549030308-3upkl52d7brpth0bnq4ko3seb7cn8fu5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe1kqFTHG4NQsbKW8G5lszgHzyufFq2sM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885549030308-3upkl52d7brpth0bnq4ko3seb7cn8fu5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "885549030308-1dvpuetj5h0l2ogfg8ffk3sje2eakgbu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.wwc"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
