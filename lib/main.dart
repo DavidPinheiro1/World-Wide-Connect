@@ -11,21 +11,31 @@ import 'pages/onboarding_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// --- IMPORTANTE: Confirma se o caminho da pasta está correto ---
+// Se o ficheiro estiver na pasta lib/services/, usa este:
+import 'pages/services/good_behavior_service.dart'; 
+// Se estiver na raiz (ao lado do main.dart), usa: import 'good_behavior_service.dart';
+// -------------------------------------------------------------
+
 // 1. BACKGROUND MESSAGE HANDLER
-// This must be a top-level function to handle messages when the app is terminated or in the background.
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Logic to handle background message can be added here if needed.
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Register the background message handler
+  // -----------------------------------------------------------
+  // ⚠️ CORREÇÃO CRÍTICA: Carregar a lista de palavrões AQUI ⚠️
+  // Isto garante que o filtro funciona antes do utilizador fazer login
+  await GoodBehaviorService().loadBadWords();
+  // -----------------------------------------------------------
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
@@ -39,10 +49,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // GlobalKey for showing SnackBars if needed
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  
-  // Navigator Key to access context from anywhere (essential for overlays)
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
@@ -55,7 +62,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> _setupNotifications() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // Request permission for mobile platforms
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       badge: true,
@@ -64,18 +70,15 @@ class _MyAppState extends State<MyApp> {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       
-      // Get FCM Token
       String? token = await messaging.getToken();
 
       if (token != null) {
-        // Save token when user logs in
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user != null) {
             DatabaseService().saveUserToken(user.uid, token);
           }
         });
         
-        // Update token if it refreshes
         messaging.onTokenRefresh.listen((newToken) {
           User? currentUser = FirebaseAuth.instance.currentUser;
           if (currentUser != null) {
@@ -84,10 +87,8 @@ class _MyAppState extends State<MyApp> {
         });
       }
 
-      // Listen for foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (message.notification != null) {
-          // Show custom in-app banner
           _showTopBanner(
             message.notification!.title ?? "New Message",
             message.notification!.body ?? "Tap to view",
@@ -109,7 +110,6 @@ class _MyAppState extends State<MyApp> {
 
     entry = OverlayEntry(
       builder: (context) => Positioned(
-        // padding.top prevents overlap with the status bar/notch
         top: MediaQuery.of(context).padding.top + 10, 
         left: 16,
         right: 16,
@@ -126,10 +126,8 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
-    // Insert the banner into the overlay
     overlayState.insert(entry);
 
-    // Auto-dismiss after 4 seconds
     Future.delayed(const Duration(seconds: 4), () {
       if (entry != null && entry!.mounted) {
         entry!.remove();
@@ -139,11 +137,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Capture base text theme to apply Google Fonts correctly
     final baseTextTheme = Theme.of(context).textTheme;
     
     return MaterialApp(
-      navigatorKey: _navigatorKey, // Essential for navigation without context
+      navigatorKey: _navigatorKey,
       scaffoldMessengerKey: _scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Mensa App',
@@ -151,13 +148,11 @@ class _MyAppState extends State<MyApp> {
         primaryColor: const Color(0xFFFC751D),
         useMaterial3: true,
         
-        // --- TYPOGRAPHY CONFIGURATION ---
-        // Applies Montserrat globally but ensures readability with specific weights/colors
         textTheme: GoogleFonts.montserratTextTheme(baseTextTheme).copyWith(
           bodyMedium: GoogleFonts.montserrat(
             fontSize: 14,
-            fontWeight: FontWeight.w500, // Medium weight for better visibility
-            color: Colors.black87,       // High contrast color
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
           ),
           bodySmall: GoogleFonts.montserrat(
             fontSize: 12,
@@ -177,7 +172,6 @@ class _MyAppState extends State<MyApp> {
 }
 
 // --- AUTHENTICATION WRAPPER ---
-// Decides which screen to show based on user state
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -188,17 +182,14 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
-        // 1. Loading auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        // 2. User NOT logged in -> Landing Page
         if (!snapshot.hasData || snapshot.data == null) {
           return const LandingPage();
         }
 
-        // 3. User LOGGED in -> Check profile completion in Firestore
         User user = snapshot.data!;
         
         return FutureBuilder<DocumentSnapshot>(
@@ -211,14 +202,11 @@ class AuthWrapper extends StatelessWidget {
             if (docSnapshot.hasData && docSnapshot.data!.exists) {
               final data = docSnapshot.data!.data() as Map<String, dynamic>;
               
-              // Check 'isProfileComplete' flag
               bool isComplete = data['isProfileComplete'] ?? false;
 
               if (isComplete) {
-                // Profile OK -> Main Screen
                 return const MainScreen();
               } else {
-                // Profile Incomplete -> Onboarding
                 return OnboardingPage(
                   name: user.displayName ?? "",
                   email: user.email ?? "",
@@ -226,7 +214,6 @@ class AuthWrapper extends StatelessWidget {
               }
             }
             
-            // Fallback (Assumes login successful if doc read fails)
             return const MainScreen();
           },
         );
@@ -236,7 +223,7 @@ class AuthWrapper extends StatelessWidget {
 }
 
 // -------------------------------------------------------
-//    MODERN NOTIFICATION BANNER WIDGET
+//   MODERN NOTIFICATION BANNER WIDGET
 // -------------------------------------------------------
 class _ModernNotificationWidget extends StatefulWidget {
   final String title;
@@ -266,11 +253,11 @@ class _ModernNotificationWidgetState extends State<_ModernNotificationWidget> wi
     );
 
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.5), // Starts hidden above screen
+      begin: const Offset(0.0, -1.5),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut, // Spring/Bounce effect
+      curve: Curves.elasticOut,
     ));
 
     _controller.forward();
@@ -289,7 +276,6 @@ class _ModernNotificationWidgetState extends State<_ModernNotificationWidget> wi
       child: GestureDetector(
         onTap: widget.onDismiss,
         onVerticalDragEnd: (details) {
-          // Swipe up to dismiss
           if (details.primaryVelocity! < 0) {
             widget.onDismiss();
           }

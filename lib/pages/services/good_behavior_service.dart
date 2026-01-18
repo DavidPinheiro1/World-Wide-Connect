@@ -1,92 +1,67 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, AssetManifest;
 import 'package:profanity_filter/profanity_filter.dart';
 
 class GoodBehaviorService {
-  //This opens the dictionary only once when the app starts and reuses it instead of loading it every time we open a different page.
   static final GoodBehaviorService list = GoodBehaviorService._internal();
   
-  //Will return the same instance every time it's called, no matter where. In this case, the opened dictionary.
   factory GoodBehaviorService() => list;
   GoodBehaviorService._internal();
   ProfanityFilter? filter;
   List<String> listOfCriticalWords = [];
 
-  ///When the app starts, load all bad words from assets (call it on main.dart)
   Future<void> loadBadWords() async {
     List<String> allBadWords = [];
 
-    try {
-      //Reads all the assets of the app
-      final map = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(map);
+    //load asset manifest
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final allAssets = manifest.listAssets();
 
-      //Gets all file paths in assets/bad_words/
-      final badWordFiles = manifestMap.keys
-          .where((String key) => key.startsWith('assets/bad_words/'))
-          .toList();
 
-      //Reads the content of each file and adds to the list
-      for (final path in badWordFiles) {
-        try {
-          final String content = await rootBundle.loadString(path);
-          final List<String> words = content
-              .split('\n')
-              .map((w) => w.trim())
-              .where((w) => w.isNotEmpty)
-              .toList();  
-          allBadWords.addAll(words);
-        }
-        catch (e) {
-          print('Error');
-        }
-      }
-    } catch (e) {
-      print('Error loading');
-    } 
+    //filter bad word files from folder
+    final badWordFiles = allAssets
+        .where((key) => key.contains('bad_words/') || key.contains('word-library/'))
+        .toList();
 
-    //Adds our manual critical words, this is because the PT version is the PT-BR version and misses some common words from PT-PT
+    //read each bad word file and add words to list
+    for (final path in badWordFiles) {
+      final String content = await rootBundle.loadString(path);
+      final List<String> words = content
+          .split('\n')
+          .map((w) => w.trim())
+          .where((w) => w.isNotEmpty)
+          .toList();  
+          
+      allBadWords.addAll(words);
+    }
+
+
+    //Manually add critical words
+    //this is to ensure some words are always included (for example, PT file only have pt-br words)
     allBadWords.addAll(_getManualCriticalWords());
 
-    //Filters the library (removes duplicates)
+    //manage filter of manual loaded words
     filter = ProfanityFilter.filterAdditionally(allBadWords);
     
-    //Preprocess the list for robust checking and normalization
+    //normalize all words for robust checking (like removing accents, special chars, etc)
     listOfCriticalWords = allBadWords.map((w) => _normalizeText(w)).toList();
   }
 
-  ///veryfies if the user text contains offensive words
   bool isOffensive(String text) {
-    if (filter == null) {
-      return false; 
-    }
-
-    //filter exact word matches
-    if (filter!.hasProfanity(text)) return true;
-
-    //filter hidden words (badwords with symbols or joined words)
+    //Verification of bad words in text input
     if (text.length < 500) {
       String hiddenWords = _normalizeText(text);
-      
       for (final badWord in listOfCriticalWords) {
-        //Ignores very small words to reduce false positives (example: "cu" is part of "cuidado", sorry, do not know an english example)
         if (badWord.length < 3) continue; 
-
-        if (hiddenWords.contains(badWord)) {
-          return true;
-        }
+        if (hiddenWords.contains(badWord)) return true;
       }
     }
-
     return false;
   }
 
-  ///Normalizes text by removing accents, special characters and converting to lowercase
+  //normalize text by removing accents and special characters
   String _normalizeText(String text) {
     String clean = text.toLowerCase();
-    
-    //Cleans accents
     clean = clean.replaceAll(RegExp(r'[àáâãäå]'), 'a');
     clean = clean.replaceAll(RegExp(r'[èéêë]'), 'e');
     clean = clean.replaceAll(RegExp(r'[ìíîï]'), 'i');
@@ -94,18 +69,20 @@ class GoodBehaviorService {
     clean = clean.replaceAll(RegExp(r'[ùúûü]'), 'u');
     clean = clean.replaceAll(RegExp(r'[ç]'), 'c');
     clean = clean.replaceAll(RegExp(r'[ñ]'), 'n');
-    //Cleans special characters
     clean = clean.replaceAll(RegExp(r'[^a-z0-9]'), '');
-    
     return clean;
   }
 
+  //Manually defined critical words to ensure they are always included
   List<String> _getManualCriticalWords() {
     return [
+      // PT
       "caralho", "merda", "puta", "cabrao", "foda-se", "fodase", 
       "paneleiro", "cona", "pila", "fudido", "idiota", "estupido", 
       "pissolho", "fodasse", "piroca", "chupa", "corno", "fds",
-      "picha", "pixa", "buceta", "bosta", "otario", "viado"
+      "picha", "pixa", "buceta", "bosta", "otario", "viado",
+      // EN (Adicionadas agora para garantir que funcionam já)
+      "bitch", "nudity", "nude", "sex", "fuck", "shit", "asshole", "dick"
     ];
   }
 }
