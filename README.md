@@ -47,6 +47,21 @@ Firebase:
     
     https://firebase.google.com/?hl=pt-br
 
+    How to install it:
+
+        #1. Install firebase tools
+        npm install -g firebase-tools
+
+        #2. Active CLI
+        dart pub global activate flutterfire_cli
+
+        #3. Login in Firebase
+        firebase login
+
+        #4. Configure the project you want to work on 
+        flutterfire configure
+
+
 Google Sign-in:
     
     https://developers.google.com/identity/sign-in/web/sign-in?hl=pt-br

@@ -42,9 +42,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   //message system key
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> messageKey = GlobalKey<ScaffoldMessengerState>();
   //navigation and overlay key, used to create the notification banner
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> navigationKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
 
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (message.notification != null) {
-          _showTopBanner(
+          TopBannerNotification(
             message.notification!.title ?? "New Message",
             message.notification!.body ?? "Tap to view",
           );
@@ -90,14 +90,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  // --- CUSTOM IN-APP BANNER LOGIC ---
-  void _showTopBanner(String title, String body) {
-    if (_navigatorKey.currentState == null) return;
+  //function to show top banner notification
+  void TopBannerNotification(String title, String body) {
+    if (navigationKey.currentState == null) return;
 
-    final overlayState = _navigatorKey.currentState!.overlay;
+    final overlayState = navigationKey.currentState!.overlay;
     if (overlayState == null) return;
 
-    final context = _navigatorKey.currentState!.context;
+    final context = navigationKey.currentState!.context;
     OverlayEntry? entry;
 
     entry = OverlayEntry(
@@ -107,7 +107,7 @@ class _MyAppState extends State<MyApp> {
         right: 16,
         child: Material(
           color: Colors.transparent,
-          child: _ModernNotificationWidget(
+          child: NotificationWidget(
             title: title,
             body: body,
             onDismiss: () {
@@ -127,13 +127,14 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  //Configure the app theme, all the text styles use Google Fonts Montserrat, besides user input
   @override
   Widget build(BuildContext context) {
     final baseTextTheme = Theme.of(context).textTheme;
     
     return MaterialApp(
-      navigatorKey: _navigatorKey,
-      scaffoldMessengerKey: _scaffoldMessengerKey,
+      navigatorKey: navigationKey,
+      scaffoldMessengerKey: messageKey,
       debugShowCheckedModeBanner: false,
       title: 'Mensa App',
       theme: ThemeData(
@@ -163,7 +164,9 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// --- AUTHENTICATION WRAPPER ---
+//decides which page to show based on authentication state
+//if the user is logged in, check if profile is complete
+//if profile is complete, go to MainScreen, else go to OnboardingPage
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -214,57 +217,60 @@ class AuthWrapper extends StatelessWidget {
   }
 }
 
-// -------------------------------------------------------
-//   MODERN NOTIFICATION BANNER WIDGET
-// -------------------------------------------------------
-class _ModernNotificationWidget extends StatefulWidget {
+//Notification Widget with Animation
+class NotificationWidget extends StatefulWidget {
   final String title;
   final String body;
   final VoidCallback onDismiss;
 
-  const _ModernNotificationWidget({
+  const NotificationWidget({
     required this.title, 
     required this.body, 
     required this.onDismiss
   });
 
   @override
-  State<_ModernNotificationWidget> createState() => _ModernNotificationWidgetState();
+  State<NotificationWidget> createState() => StateOfNotificationWidget();
 }
 
-class _ModernNotificationWidgetState extends State<_ModernNotificationWidget> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
+//state class for notification banner, animation included
+class StateOfNotificationWidget extends State<NotificationWidget> with SingleTickerProviderStateMixin {
+  late AnimationController controllerOfAnimation;
+  late Animation<Offset> animationPosition;
 
+//initialize animation 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    controllerOfAnimation = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
-    _offsetAnimation = Tween<Offset>(
+    animationPosition = Tween<Offset>(
       begin: const Offset(0.0, -1.5),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _controller,
+      parent: controllerOfAnimation,
       curve: Curves.elasticOut,
     ));
 
-    _controller.forward();
+    controllerOfAnimation.forward();
   }
 
+  //clean up memory after notification is dismissed
   @override
   void dispose() {
-    _controller.dispose();
+    controllerOfAnimation.dispose();
     super.dispose();
   }
 
+
+  //notification banner UI
   @override
   Widget build(BuildContext context) {
     return SlideTransition(
-      position: _offsetAnimation,
+      position: animationPosition,
       child: GestureDetector(
         onTap: widget.onDismiss,
         onVerticalDragEnd: (details) {
