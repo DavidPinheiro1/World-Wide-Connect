@@ -10,14 +10,9 @@ import 'pages/main_screen.dart';
 import 'pages/onboarding_page.dart'; 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// --- IMPORTANTE: Confirma se o caminho da pasta está correto ---
-// Se o ficheiro estiver na pasta lib/services/, usa este:
 import 'pages/services/good_behavior_service.dart'; 
-// Se estiver na raiz (ao lado do main.dart), usa: import 'good_behavior_service.dart';
-// -------------------------------------------------------------
 
-// 1. BACKGROUND MESSAGE HANDLER
+//Background message handler
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -30,12 +25,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // -----------------------------------------------------------
-  // ⚠️ CORREÇÃO CRÍTICA: Carregar a lista de palavrões AQUI ⚠️
-  // Isto garante que o filtro funciona antes do utilizador fazer login
+  //Load the bad words list before app starts
   await GoodBehaviorService().loadBadWords();
-  // -----------------------------------------------------------
 
+  //Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
@@ -43,25 +36,26 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  //message system key
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  //navigation and overlay key, used to create the notification banner
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
-    _setupNotifications();
+    notificationsSetup();
   }
 
-  // --- NOTIFICATION SETUP ---
-  Future<void> _setupNotifications() async {
+  //setup notifications
+  Future<void> notificationsSetup() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-
+    //request permission
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       badge: true,
@@ -69,9 +63,7 @@ class _MyAppState extends State<MyApp> {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      
       String? token = await messaging.getToken();
-
       if (token != null) {
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user != null) {
