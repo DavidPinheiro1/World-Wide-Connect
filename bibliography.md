@@ -1,26 +1,36 @@
 📃 APIs used in this project:
 
-Firebase: https://firebase.google.com/?hl=pt-br
-Google Sign-in: https://developers.google.com/identity/sign-in/web/sign-in?hl=pt-br
+Firebase:
+    
+    https://firebase.google.com/?hl=pt-br
+
+Google Sign-in:
+    
+    https://developers.google.com/identity/sign-in/web/sign-in?hl=pt-br
 
 Firebase Authentication API:
+
     -auth_service.dart;
     -login_page.dart;
     -register_page.dart;
 
 Google Sign-In API:
+
     -landing_page.dart;
 
 Cloud Firestore API:
+
     -database_service.dart;
     -home_page.dart;
     -notifications_page.dart;
 
 Firebase Cloud Messaging (FCM) API:
+
     -main.dart;
     -database_service.dart;
 
 We also used some native APIs from the devices themselves:
+
     -mobile_scanner;
     -url_launcher;
     -flutter/services;
