@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../database_service.dart';
@@ -12,27 +11,27 @@ class BicyclesPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. IMAGEM DE FUNDO
+          //background image
           Positioned.fill(
             child: Image.asset(
-              'lib/assets/images/Bicycles for a good price.png', // Nome exato do teu ficheiro
+              'lib/assets/images/Bicycles for a good price.png',
               fit: BoxFit.cover,
               errorBuilder: (c, e, s) => Container(color: Colors.grey.shade800),
             ),
           ),
 
-          // 2. OVERLAY ESCURO
+          //Black overlay above background
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.7), // Escurece para ler o texto
             ),
           ),
 
-          // 3. CONTEÚDO
+          //Content of the page
           SafeArea(
             child: Column(
               children: [
-                // HEADER (Substitui todo este bloco)
+                //Header with back button, title and favorite star
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: Row(
@@ -52,7 +51,7 @@ class BicyclesPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      // Bloco da Estrela (Favoritos)
+                      //Favorite star
                       StreamBuilder<DocumentSnapshot>(
                         stream: DatabaseService().getSingleTopicStream('bicycle_system_topic'),
                         builder: (context, snapshot) {
@@ -80,7 +79,7 @@ class BicyclesPage extends StatelessWidget {
                   ),
                 ),
 
-                // --- TEXTO ---
+                //Text content
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
@@ -93,7 +92,7 @@ class BicyclesPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Título Principal
+                          //Title
                           const Center(
                             child: Text(
                               "Get Your Bicycle for a Great Price in Brandenburg!",
@@ -106,6 +105,7 @@ class BicyclesPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
+                          //rest of the content
                           const Text(
                             "Looking for an affordable, fully functional bicycle in Brandenburg an der Havel? There's a fantastic community initiative that's been helping locals since 2017!",
                             style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
@@ -164,6 +164,7 @@ class BicyclesPage extends StatelessWidget {
     );
   }
 
+  //Section title builder
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -173,7 +174,7 @@ class BicyclesPage extends StatelessWidget {
       ),
     );
   }
-
+  //bold title
   Widget _buildBulletPoint(String title, String text) {
     return RichText(
       text: TextSpan(

@@ -83,6 +83,7 @@ flutter:
     - lib/assets/images/
     - lib/assets/icons/
     - lib/assets/images/Mensa_fh_brandenburg.jpg
+    - lib/assets/word-library/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
