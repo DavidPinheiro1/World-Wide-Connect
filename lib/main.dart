@@ -97,7 +97,6 @@ class _MyAppState extends State<MyApp> {
     final overlayState = navigationKey.currentState!.overlay;
     if (overlayState == null) return;
 
-    final context = navigationKey.currentState!.context;
     OverlayEntry? entry;
 
     entry = OverlayEntry(
@@ -121,8 +120,8 @@ class _MyAppState extends State<MyApp> {
     overlayState.insert(entry);
 
     Future.delayed(const Duration(seconds: 4), () {
-      if (entry != null && entry!.mounted) {
-        entry!.remove();
+      if (entry != null && entry.mounted) {
+        entry.remove();
       }
     });
   }

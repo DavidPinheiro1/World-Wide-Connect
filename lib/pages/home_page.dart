@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../auth_service.dart';
 import '../database_service.dart';
 import '../widgets/topic_card.dart';
-import '../widgets/linear_icon.dart';
 import 'profile_page.dart';
 import 'topic_list_page.dart';
 import 'notifications_page.dart';

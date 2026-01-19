@@ -197,7 +197,7 @@ class DatabaseService {
       final String projectId = jsonMap['project_id'];
 
       //Send POST request to FCM API
-      final response = await http.post(
+      await http.post(
         Uri.parse('https://fcm.googleapis.com/v1/projects/$projectId/messages:send'),
         headers: <String, String>{
           'Content-Type': 'application/json',

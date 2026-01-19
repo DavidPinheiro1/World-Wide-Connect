@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:ui' as ui; // Necessário para o efeito de Blur
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../auth_service.dart';
 import '../database_service.dart';
 import 'landing_page.dart';
